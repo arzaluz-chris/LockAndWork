@@ -6,11 +6,53 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		B9E942332DCC5EC600CE8CBA /* WidgetKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B9E942322DCC5EC600CE8CBA /* WidgetKit.framework */; };
+		B9E942352DCC5EC600CE8CBA /* SwiftUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B9E942342DCC5EC600CE8CBA /* SwiftUI.framework */; };
+		B9E942462DCC5EC800CE8CBA /* LockAndWorkWidgetExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = B9E942302DCC5EC600CE8CBA /* LockAndWorkWidgetExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		B9E9424F2DCC62A300CE8CBA /* SharedActivityAttributes.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9E9424E2DCC629500CE8CBA /* SharedActivityAttributes.swift */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		B9E942442DCC5EC800CE8CBA /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = B9FCCF762DCB1C9100D469F6 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = B9E9422F2DCC5EC600CE8CBA;
+			remoteInfo = LockAndWorkWidgetExtension;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		B9E9424B2DCC5EC800CE8CBA /* Embed Foundation Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+				B9E942462DCC5EC800CE8CBA /* LockAndWorkWidgetExtension.appex in Embed Foundation Extensions */,
+			);
+			name = "Embed Foundation Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
 /* Begin PBXFileReference section */
+		B9E942302DCC5EC600CE8CBA /* LockAndWorkWidgetExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = LockAndWorkWidgetExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		B9E942322DCC5EC600CE8CBA /* WidgetKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WidgetKit.framework; path = System/Library/Frameworks/WidgetKit.framework; sourceTree = SDKROOT; };
+		B9E942342DCC5EC600CE8CBA /* SwiftUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SwiftUI.framework; path = System/Library/Frameworks/SwiftUI.framework; sourceTree = SDKROOT; };
+		B9E9424E2DCC629500CE8CBA /* SharedActivityAttributes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SharedActivityAttributes.swift; sourceTree = "<group>"; };
 		B9FCCF7E2DCB1C9100D469F6 /* LockAndWork.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = LockAndWork.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		B9E9424A2DCC5EC800CE8CBA /* Exceptions for "LockAndWorkWidget" folder in "LockAndWorkWidgetExtension" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = B9E9422F2DCC5EC600CE8CBA /* LockAndWorkWidgetExtension */;
+		};
 		B9FCCFEF2DCB215A00D469F6 /* Exceptions for "LockAndWork" folder in "LockAndWork" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
@@ -21,6 +63,14 @@
 /* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
+		B9E942362DCC5EC600CE8CBA /* LockAndWorkWidget */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				B9E9424A2DCC5EC800CE8CBA /* Exceptions for "LockAndWorkWidget" folder in "LockAndWorkWidgetExtension" target */,
+			);
+			path = LockAndWorkWidget;
+			sourceTree = "<group>";
+		};
 		B9FCCF802DCB1C9100D469F6 /* LockAndWork */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			exceptions = (
@@ -62,6 +112,15 @@
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
+		B9E9422D2DCC5EC600CE8CBA /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				B9E942352DCC5EC600CE8CBA /* SwiftUI.framework in Frameworks */,
+				B9E942332DCC5EC600CE8CBA /* WidgetKit.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		B9FCCF7B2DCB1C9100D469F6 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -72,9 +131,19 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		B9E942312DCC5EC600CE8CBA /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				B9E942322DCC5EC600CE8CBA /* WidgetKit.framework */,
+				B9E942342DCC5EC600CE8CBA /* SwiftUI.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
 		B9FCCF752DCB1C9100D469F6 = {
 			isa = PBXGroup;
 			children = (
+				B9E9424E2DCC629500CE8CBA /* SharedActivityAttributes.swift */,
 				B9FCCFDA2DCB1DF500D469F6 /* Resources */,
 				B9FCCFB52DCB1D6600D469F6 /* Views */,
 				B9FCCFAB2DCB1D3D00D469F6 /* ViewModels */,
@@ -82,6 +151,8 @@
 				B9FCCF952DCB1CE700D469F6 /* Models */,
 				B9FCCF8E2DCB1CC600D469F6 /* App */,
 				B9FCCF802DCB1C9100D469F6 /* LockAndWork */,
+				B9E942362DCC5EC600CE8CBA /* LockAndWorkWidget */,
+				B9E942312DCC5EC600CE8CBA /* Frameworks */,
 				B9FCCF7F2DCB1C9100D469F6 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -90,6 +161,7 @@
 			isa = PBXGroup;
 			children = (
 				B9FCCF7E2DCB1C9100D469F6 /* LockAndWork.app */,
+				B9E942302DCC5EC600CE8CBA /* LockAndWorkWidgetExtension.appex */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -97,6 +169,28 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
+		B9E9422F2DCC5EC600CE8CBA /* LockAndWorkWidgetExtension */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = B9E942472DCC5EC800CE8CBA /* Build configuration list for PBXNativeTarget "LockAndWorkWidgetExtension" */;
+			buildPhases = (
+				B9E9422C2DCC5EC600CE8CBA /* Sources */,
+				B9E9422D2DCC5EC600CE8CBA /* Frameworks */,
+				B9E9422E2DCC5EC600CE8CBA /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			fileSystemSynchronizedGroups = (
+				B9E942362DCC5EC600CE8CBA /* LockAndWorkWidget */,
+			);
+			name = LockAndWorkWidgetExtension;
+			packageProductDependencies = (
+			);
+			productName = LockAndWorkWidgetExtension;
+			productReference = B9E942302DCC5EC600CE8CBA /* LockAndWorkWidgetExtension.appex */;
+			productType = "com.apple.product-type.app-extension";
+		};
 		B9FCCF7D2DCB1C9100D469F6 /* LockAndWork */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = B9FCCF8B2DCB1C9400D469F6 /* Build configuration list for PBXNativeTarget "LockAndWork" */;
@@ -104,10 +198,12 @@
 				B9FCCF7A2DCB1C9100D469F6 /* Sources */,
 				B9FCCF7B2DCB1C9100D469F6 /* Frameworks */,
 				B9FCCF7C2DCB1C9100D469F6 /* Resources */,
+				B9E9424B2DCC5EC800CE8CBA /* Embed Foundation Extensions */,
 			);
 			buildRules = (
 			);
 			dependencies = (
+				B9E942452DCC5EC800CE8CBA /* PBXTargetDependency */,
 			);
 			fileSystemSynchronizedGroups = (
 				B9FCCF802DCB1C9100D469F6 /* LockAndWork */,
@@ -135,6 +231,9 @@
 				LastSwiftUpdateCheck = 1630;
 				LastUpgradeCheck = 1630;
 				TargetAttributes = {
+					B9E9422F2DCC5EC600CE8CBA = {
+						CreatedOnToolsVersion = 16.3;
+					};
 					B9FCCF7D2DCB1C9100D469F6 = {
 						CreatedOnToolsVersion = 16.3;
 						LastSwiftMigration = 1630;
@@ -156,11 +255,19 @@
 			projectRoot = "";
 			targets = (
 				B9FCCF7D2DCB1C9100D469F6 /* LockAndWork */,
+				B9E9422F2DCC5EC600CE8CBA /* LockAndWorkWidgetExtension */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
+		B9E9422E2DCC5EC600CE8CBA /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		B9FCCF7C2DCB1C9100D469F6 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -171,16 +278,86 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
-		B9FCCF7A2DCB1C9100D469F6 /* Sources */ = {
+		B9E9422C2DCC5EC600CE8CBA /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		B9FCCF7A2DCB1C9100D469F6 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				B9E9424F2DCC62A300CE8CBA /* SharedActivityAttributes.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
 
+/* Begin PBXTargetDependency section */
+		B9E942452DCC5EC800CE8CBA /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = B9E9422F2DCC5EC600CE8CBA /* LockAndWorkWidgetExtension */;
+			targetProxy = B9E942442DCC5EC800CE8CBA /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
 /* Begin XCBuildConfiguration section */
+		B9E942482DCC5EC800CE8CBA /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = WQCQ3T6U7T;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = LockAndWorkWidget/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = LockAndWorkWidget;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "com.christian-arzaluz.LockAndWork.LockAndWorkWidget";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		B9E942492DCC5EC800CE8CBA /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = WQCQ3T6U7T;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = LockAndWorkWidget/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = LockAndWorkWidget;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "com.christian-arzaluz.LockAndWork.LockAndWorkWidget";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
 		B9FCCF892DCB1C9400D469F6 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -370,6 +547,15 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
+		B9E942472DCC5EC800CE8CBA /* Build configuration list for PBXNativeTarget "LockAndWorkWidgetExtension" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				B9E942482DCC5EC800CE8CBA /* Debug */,
+				B9E942492DCC5EC800CE8CBA /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
 		B9FCCF792DCB1C9100D469F6 /* Build configuration list for PBXProject "LockAndWork" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (

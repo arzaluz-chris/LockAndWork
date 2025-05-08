@@ -4,14 +4,15 @@ import SwiftData
 
 struct TimerView: View {
     @EnvironmentObject var viewModel: MainTimerViewModel
+    @Environment(\.scenePhase) private var scenePhase
     
-    // Estado local para forzar actualizaciones de la UI
+    // State for UI updates
     @State private var timerTick = 0
     
-    // Timer para forzar actualizaciones de la UI
+    // Timer for smooth UI updates (more frequent than the actual timer)
     let timer = Timer.publish(every: 0.25, on: .main, in: .common).autoconnect()
     
-    // Colores
+    // Colors
     private let focusColor = Color.blue
     private let breakColor = Color.green
     
@@ -19,14 +20,21 @@ struct TimerView: View {
         VStack(spacing: 30) {
             Spacer()
             
-            // Timer Circle con texto
+            // Type label
+            Text(viewModel.timerService.currentBlockType.displayName.uppercased())
+                .font(.headline)
+                .foregroundColor(viewModel.timerService.currentBlockType == .focus ? focusColor : breakColor)
+                .padding(.vertical, 8)
+                .animation(.easeInOut, value: viewModel.timerService.currentBlockType)
+            
+            // Timer Circle with text
             ZStack {
-                // Círculo de fondo
+                // Background circle
                 Circle()
                     .stroke(Color(.systemGray5), lineWidth: 15)
                     .frame(width: 280, height: 280)
                 
-                // Círculo de progreso
+                // Progress circle
                 Circle()
                     .trim(from: 0, to: progress())
                     .stroke(
@@ -35,8 +43,9 @@ struct TimerView: View {
                     )
                     .frame(width: 280, height: 280)
                     .rotationEffect(.degrees(-90))
+                    .animation(.linear(duration: 0.25), value: progress())
                 
-                // Indicador de progreso (punto en el círculo)
+                // Indicator dot on the progress circle
                 if viewModel.timerService.isRunning {
                     Circle()
                         .fill(viewModel.timerService.currentBlockType == .focus ? focusColor : breakColor)
@@ -45,25 +54,24 @@ struct TimerView: View {
                             x: 140 * cos(2 * .pi * progress() - .pi/2),
                             y: 140 * sin(2 * .pi * progress() - .pi/2)
                         )
+                        .opacity(0.8)
+                        .animation(.linear(duration: 0.25), value: progress())
                 }
                 
-                // Texto del temporizador
+                // Time display
                 VStack(spacing: 8) {
                     Text(viewModel.timerService.formattedTime())
                         .font(.system(size: 60, weight: .bold, design: .rounded))
                         .monospacedDigit()
-                    
-                    Text(viewModel.timerService.currentBlockType.displayName.uppercased())
-                        .font(.headline)
-                        .foregroundColor(.secondary)
+                        .contentTransition(.numericText(countsDown: true)) // iOS 17+ animated countdown
                 }
             }
             .padding(.bottom, 20)
             
-            // Botones de control
+            // Control buttons
             HStack(spacing: 40) {
                 if viewModel.isPaused {
-                    // Botón Play
+                    // Play button
                     Button(action: {
                         viewModel.startTimer()
                     }) {
@@ -77,8 +85,9 @@ struct TimerView: View {
                                     .foregroundColor(viewModel.timerService.currentBlockType == .focus ? focusColor : breakColor)
                             )
                     }
+                    .accessibilityLabel("Start timer")
                     
-                    // Botón Reset
+                    // Reset button
                     Button(action: {
                         viewModel.resetTimer()
                     }) {
@@ -92,8 +101,9 @@ struct TimerView: View {
                                     .foregroundColor(.red)
                             )
                     }
+                    .accessibilityLabel("Reset timer")
                 } else {
-                    // Botón Pause
+                    // Pause button
                     Button(action: {
                         viewModel.pauseTimer()
                     }) {
@@ -107,11 +117,12 @@ struct TimerView: View {
                                     .foregroundColor(viewModel.timerService.currentBlockType == .focus ? focusColor : breakColor)
                             )
                     }
+                    .accessibilityLabel("Pause timer")
                 }
             }
             .padding(.bottom, 20)
             
-            // Información del siguiente bloque
+            // Next block info
             NextBlockInfoView(
                 blockType: viewModel.getNextBlockInfo().type,
                 duration: viewModel.getNextBlockInfo().duration
@@ -121,19 +132,46 @@ struct TimerView: View {
             Spacer()
         }
         .padding()
-        // FORZAR ACTUALIZACIÓN DE LA UI CON CADA TICK DEL TIMER
+        // Force UI updates
         .onReceive(timer) { _ in
             timerTick += 1
         }
+        // Handle app lifecycle changes
+        .onChange(of: scenePhase) { oldPhase, newPhase in
+            handleScenePhaseChange(from: oldPhase, to: newPhase)
+        }
     }
     
-    // Cálculo del progreso para el círculo
+    // Progress calculation for the circle
     private func progress() -> Double {
         let totalSeconds = Double(viewModel.timerService.minutesForCurrentBlock() * 60)
         let remaining = Double(viewModel.timerService.remainingSeconds)
         
-        // Asegurar que el progreso esté entre 0 y 1
+        // Ensure progress is between 0 and 1
         return min(1.0, max(0.0, 1.0 - (remaining / totalSeconds)))
+    }
+    
+    // Handle app lifecycle changes to maintain Live Activity
+    private func handleScenePhaseChange(from oldPhase: ScenePhase, to newPhase: ScenePhase) {
+        // When app goes to background
+        if oldPhase == .active && (newPhase == .background || newPhase == .inactive) {
+            if !viewModel.isPaused && viewModel.settings.liveActivityEnabled {
+                // Start or update Live Activity when app goes to background
+                let endDate = Date().addingTimeInterval(TimeInterval(viewModel.timerService.remainingSeconds))
+                ActivityManager.shared.startActivity(
+                    endDate: endDate,
+                    blockType: viewModel.timerService.currentBlockType
+                )
+            }
+        }
+        
+        // When app comes to foreground
+        if newPhase == .active && oldPhase != .active {
+            if !viewModel.isPaused {
+                // End Live Activity when returning to app while timer is running
+                ActivityManager.shared.endActivity()
+            }
+        }
     }
 }
 
