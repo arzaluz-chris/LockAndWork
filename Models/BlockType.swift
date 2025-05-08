@@ -1,25 +1,9 @@
 //  BlockType.swift
 import Foundation
 
-enum BlockType: Int, Codable, CaseIterable {
-    case focus
-    case `break`
-    
-    var displayName: String {
-        switch self {
-        case .focus:
-            return String(localized: "Focus")
-        case .break:
-            return String(localized: "Break")
-        }
-    }
-    
-    var next: BlockType {
-        switch self {
-        case .focus:
-            return .break
-        case .break:
-            return .focus
-        }
-    }
-}
+// Importing from SharedActivityAttributes instead of duplicating
+// to avoid "Invalid redeclaration of 'BlockType'" error
+import Foundation
+
+// NOTE: BlockType has been moved to SharedActivityAttributes.swift
+// to be shared with the widget extension

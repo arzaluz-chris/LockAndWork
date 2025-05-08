@@ -40,7 +40,7 @@ class ActivityManager {
                 Task {
                     // Observe content updates
                     for await contentState in activity.contentUpdates {
-                        logger.debug("Received content update for Live Activity: \(contentState.blockType.displayName)")
+                        logger.debug("Received content update for Live Activity: \(contentState.state.blockType.displayName)")
                     }
                     
                     // Observe activity state updates

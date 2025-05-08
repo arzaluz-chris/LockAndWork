@@ -8,10 +8,6 @@ import ActivityKit
 import WidgetKit
 import SwiftUI
 
-// Import the shared attributes file
-// The target membership for SharedActivityAttributes.swift should include both the main app and widget extension
-import LockAndWork
-
 struct LockAndWorkWidgetLiveActivity: Widget {
     var body: some WidgetConfiguration {
         ActivityConfiguration(for: LockAndWorkWidgetAttributes.self) { context in
@@ -118,7 +114,6 @@ struct LockAndWorkWidgetLiveActivity: Widget {
             }
             .keylineTint(context.attributes.blockType == .focus ? Color.blue : Color.green)
         }
-        .widgetURL(URL(string: "lockandwork://timer"))
     }
     
     // Helper function to calculate time remaining
@@ -248,25 +243,7 @@ struct LockScreenLiveActivityView: View {
     }
 }
 
-// Preview data - Using literal values for preview since we're importing the definitions
-#Preview("Focus", as: .content) {
-   LockAndWorkWidgetLiveActivity()
-} contentState: {
-    LockAndWorkWidgetAttributes.ContentState(
-        endDate: Date().addingTimeInterval(15 * 60),
-        blockType: .focus
-    )
-} attributes: {
-    LockAndWorkWidgetAttributes(blockType: .focus)
-}
-
-#Preview("Break", as: .content) {
-   LockAndWorkWidgetLiveActivity()
-} contentState: {
-    LockAndWorkWidgetAttributes.ContentState(
-        endDate: Date().addingTimeInterval(5 * 60),
-        blockType: .break
-    )
-} attributes: {
-    LockAndWorkWidgetAttributes(blockType: .break)
+// Simplified preview - Using an empty preview for now
+#Preview {
+    EmptyView()
 }

@@ -4,7 +4,7 @@ import WidgetKit
 import ActivityKit
 
 struct FocusLiveActivityView: View {
-    let state: FocusAttributes.ContentState
+    let state: LockAndWorkWidgetAttributes.ContentState
     let isCompact: Bool
     
     var body: some View {
@@ -56,7 +56,7 @@ struct FocusLiveActivityView: View {
 }
 
 struct FocusLiveActivityViewCompact: View {
-    let state: FocusAttributes.ContentState
+    let state: LockAndWorkWidgetAttributes.ContentState
     
     var body: some View {
         FocusLiveActivityView(state: state, isCompact: true)
@@ -64,7 +64,7 @@ struct FocusLiveActivityViewCompact: View {
 }
 
 struct FocusLiveActivityViewExpanded: View {
-    let state: FocusAttributes.ContentState
+    let state: LockAndWorkWidgetAttributes.ContentState
     
     var body: some View {
         FocusLiveActivityView(state: state, isCompact: false)

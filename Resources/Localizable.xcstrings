@@ -127,6 +127,9 @@
         }
       }
     },
+    "Pause timer" : {
+
+    },
     "Reset" : {
       "extractionState" : "stale",
       "localizations" : {
@@ -138,22 +141,15 @@
         }
       }
     },
+    "Reset timer" : {
+
+    },
     "Settings" : {
       "localizations" : {
         "es" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Ajustes"
-          }
-        }
-      }
-    },
-    "Siguiente: %@ - %lld min" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "new",
-            "value" : "Siguiente: %1$@ - %2$lld min"
           }
         }
       }
@@ -167,6 +163,9 @@
           }
         }
       }
+    },
+    "Start timer" : {
+
     },
     "Time remaining" : {
       "localizations" : {
