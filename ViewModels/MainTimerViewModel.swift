@@ -9,8 +9,10 @@ class MainTimerViewModel: ObservableObject {
     @Published var isPaused: Bool = true
     @Published var currentSession: Session?
     
+    // Make settings public to allow access from views
+    var settings: Settings
+    
     private var modelContext: ModelContext
-    private var settings: Settings
     private var cancellables = Set<AnyCancellable>()
     
     init(modelContext: ModelContext, settings: Settings) {
@@ -22,6 +24,7 @@ class MainTimerViewModel: ObservableObject {
     }
     
     private func setupSubscriptions() {
+        // Observe timerService.isRunning to update isPaused
         timerService.$isRunning
             .sink { [weak self] isRunning in
                 self?.isPaused = !isRunning
@@ -31,18 +34,26 @@ class MainTimerViewModel: ObservableObject {
                 }
             }
             .store(in: &cancellables)
+            
+        // Observe when timer reaches zero
+        timerService.$remainingSeconds
+            .sink { [weak self] seconds in
+                if seconds <= 0 && self?.timerService.isRunning == false {
+                    self?.handleBlockCompletion()
+                }
+            }
+            .store(in: &cancellables)
     }
     
     func startTimer() {
         timerService.start()
         
         if timerService.currentBlockType == .focus && settings.liveActivityEnabled {
-            if let endDate = Date().addingTimeInterval(TimeInterval(timerService.remainingSeconds)) {
-                ActivityManager.shared.startActivity(
-                    endDate: endDate,
-                    blockType: timerService.currentBlockType
-                )
-            }
+            let endDate = Date().addingTimeInterval(TimeInterval(timerService.remainingSeconds))
+            ActivityManager.shared.startActivity(
+                endDate: endDate,
+                blockType: timerService.currentBlockType
+            )
         }
     }
     
@@ -62,6 +73,8 @@ class MainTimerViewModel: ObservableObject {
     }
     
     func handleBlockCompletion() {
+        print("Block completed! Saving session...")
+        
         // Save completed session
         saveCurrentSession()
         
@@ -87,12 +100,11 @@ class MainTimerViewModel: ObservableObject {
         // Update or end Live Activity
         if settings.liveActivityEnabled {
             if timerService.currentBlockType == .focus {
-                if let endDate = Date().addingTimeInterval(TimeInterval(timerService.remainingSeconds)) {
-                    ActivityManager.shared.updateActivity(
-                        endDate: endDate,
-                        blockType: timerService.currentBlockType
-                    )
-                }
+                let endDate = Date().addingTimeInterval(TimeInterval(timerService.remainingSeconds))
+                ActivityManager.shared.updateActivity(
+                    endDate: endDate,
+                    blockType: timerService.currentBlockType
+                )
             } else {
                 ActivityManager.shared.endActivity()
             }
@@ -108,6 +120,7 @@ class MainTimerViewModel: ObservableObject {
         )
         
         currentSession = newSession
+        print("Created new session of type: \(timerService.currentBlockType.displayName)")
     }
     
     private func saveCurrentSession() {
@@ -118,6 +131,7 @@ class MainTimerViewModel: ObservableObject {
         
         do {
             try modelContext.save()
+            print("Successfully saved session to database")
             currentSession = nil
         } catch {
             print("Failed to save session: \(error)")

@@ -1,6 +1,12 @@
 {
   "sourceLanguage" : "en",
   "strings" : {
+    "%lld min" : {
+
+    },
+    "1.0" : {
+
+    },
     "About" : {
       "localizations" : {
         "es" : {
@@ -21,22 +27,22 @@
         }
       }
     },
-    "Break time!" : {
-      "localizations" : {
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "¡Descanso!"
-          }
-        }
-      }
-    },
     "Break time" : {
       "localizations" : {
         "es" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Tiempo de descanso"
+          }
+        }
+      }
+    },
+    "Break time!" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "¡Descanso!"
           }
         }
       }
@@ -122,6 +128,7 @@
       }
     },
     "Reset" : {
+      "extractionState" : "stale",
       "localizations" : {
         "es" : {
           "stringUnit" : {
@@ -137,6 +144,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Ajustes"
+          }
+        }
+      }
+    },
+    "Siguiente: %@ - %lld min" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Siguiente: %1$@ - %2$lld min"
           }
         }
       }
