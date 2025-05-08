@@ -10,10 +10,53 @@
 		B9FCCF7E2DCB1C9100D469F6 /* LockAndWork.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = LockAndWork.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		B9FCCFEF2DCB215A00D469F6 /* Exceptions for "LockAndWork" folder in "LockAndWork" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = B9FCCF7D2DCB1C9100D469F6 /* LockAndWork */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
+
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		B9FCCF802DCB1C9100D469F6 /* LockAndWork */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				B9FCCFEF2DCB215A00D469F6 /* Exceptions for "LockAndWork" folder in "LockAndWork" target */,
+			);
 			path = LockAndWork;
+			sourceTree = "<group>";
+		};
+		B9FCCF8E2DCB1CC600D469F6 /* App */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = App;
+			sourceTree = "<group>";
+		};
+		B9FCCF952DCB1CE700D469F6 /* Models */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = Models;
+			sourceTree = "<group>";
+		};
+		B9FCCFA12DCB1D1500D469F6 /* Services */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = Services;
+			sourceTree = "<group>";
+		};
+		B9FCCFAB2DCB1D3D00D469F6 /* ViewModels */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = ViewModels;
+			sourceTree = "<group>";
+		};
+		B9FCCFB52DCB1D6600D469F6 /* Views */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = Views;
+			sourceTree = "<group>";
+		};
+		B9FCCFDA2DCB1DF500D469F6 /* Resources */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = Resources;
 			sourceTree = "<group>";
 		};
 /* End PBXFileSystemSynchronizedRootGroup section */
@@ -32,6 +75,12 @@
 		B9FCCF752DCB1C9100D469F6 = {
 			isa = PBXGroup;
 			children = (
+				B9FCCFDA2DCB1DF500D469F6 /* Resources */,
+				B9FCCFB52DCB1D6600D469F6 /* Views */,
+				B9FCCFAB2DCB1D3D00D469F6 /* ViewModels */,
+				B9FCCFA12DCB1D1500D469F6 /* Services */,
+				B9FCCF952DCB1CE700D469F6 /* Models */,
+				B9FCCF8E2DCB1CC600D469F6 /* App */,
 				B9FCCF802DCB1C9100D469F6 /* LockAndWork */,
 				B9FCCF7F2DCB1C9100D469F6 /* Products */,
 			);
@@ -62,6 +111,12 @@
 			);
 			fileSystemSynchronizedGroups = (
 				B9FCCF802DCB1C9100D469F6 /* LockAndWork */,
+				B9FCCF8E2DCB1CC600D469F6 /* App */,
+				B9FCCF952DCB1CE700D469F6 /* Models */,
+				B9FCCFA12DCB1D1500D469F6 /* Services */,
+				B9FCCFAB2DCB1D3D00D469F6 /* ViewModels */,
+				B9FCCFB52DCB1D6600D469F6 /* Views */,
+				B9FCCFDA2DCB1DF500D469F6 /* Resources */,
 			);
 			name = LockAndWork;
 			packageProductDependencies = (
@@ -82,6 +137,7 @@
 				TargetAttributes = {
 					B9FCCF7D2DCB1C9100D469F6 = {
 						CreatedOnToolsVersion = 16.3;
+						LastSwiftMigration = 1630;
 					};
 				};
 			};
@@ -185,6 +241,7 @@
 				ONLY_ACTIVE_ARCH = YES;
 				SDKROOT = iphoneos;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 			};
 			name = Debug;
@@ -242,6 +299,7 @@
 				MTL_FAST_MATH = YES;
 				SDKROOT = iphoneos;
 				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_EMIT_LOC_STRINGS = YES;
 				VALIDATE_PRODUCT = YES;
 			};
 			name = Release;
@@ -251,11 +309,14 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CLANG_ENABLE_MODULES = YES;
+				CODE_SIGN_ENTITLEMENTS = LockAndWork/LockAndWork.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = WQCQ3T6U7T;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = LockAndWork/Info.plist;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -269,6 +330,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = "com.christian-arzaluz.LockAndWork";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
@@ -279,11 +341,14 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CLANG_ENABLE_MODULES = YES;
+				CODE_SIGN_ENTITLEMENTS = LockAndWork/LockAndWork.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = WQCQ3T6U7T;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = LockAndWork/Info.plist;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;

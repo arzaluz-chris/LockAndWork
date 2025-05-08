@@ -1,0 +1,8 @@
+<key>NSUserActivityTypes</key>
+<array>
+    <string>FocusAttributes</string>
+</array>
+<key>UIBackgroundModes</key>
+<array>
+    <string>remote-notification</string>
+</array>
