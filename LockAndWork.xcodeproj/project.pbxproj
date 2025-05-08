@@ -11,6 +11,7 @@
 		B9E942352DCC5EC600CE8CBA /* SwiftUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B9E942342DCC5EC600CE8CBA /* SwiftUI.framework */; };
 		B9E942462DCC5EC800CE8CBA /* LockAndWorkWidgetExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = B9E942302DCC5EC600CE8CBA /* LockAndWorkWidgetExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		B9E9424F2DCC62A300CE8CBA /* SharedActivityAttributes.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9E9424E2DCC629500CE8CBA /* SharedActivityAttributes.swift */; };
+		B9E942972DCC643900CE8CBA /* SharedActivityAttributes.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9E9424E2DCC629500CE8CBA /* SharedActivityAttributes.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -53,6 +54,13 @@
 			);
 			target = B9E9422F2DCC5EC600CE8CBA /* LockAndWorkWidgetExtension */;
 		};
+		B9E942992DCC654700CE8CBA /* Exceptions for "Models" folder in "LockAndWorkWidgetExtension" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				BlockType.swift,
+			);
+			target = B9E9422F2DCC5EC600CE8CBA /* LockAndWorkWidgetExtension */;
+		};
 		B9FCCFEF2DCB215A00D469F6 /* Exceptions for "LockAndWork" folder in "LockAndWork" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
@@ -86,6 +94,9 @@
 		};
 		B9FCCF952DCB1CE700D469F6 /* Models */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				B9E942992DCC654700CE8CBA /* Exceptions for "Models" folder in "LockAndWorkWidgetExtension" target */,
+			);
 			path = Models;
 			sourceTree = "<group>";
 		};
@@ -282,6 +293,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				B9E942972DCC643900CE8CBA /* SharedActivityAttributes.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -8,40 +8,9 @@ import ActivityKit
 import WidgetKit
 import SwiftUI
 
-// Remove this enum if you're using the shared file
-/*
-enum BlockType: Int, Codable, CaseIterable {
-    case focus
-    case `break`
-    
-    var displayName: String {
-        switch self {
-        case .focus:
-            return String(localized: "Focus")
-        case .break:
-            return String(localized: "Break")
-        }
-    }
-    
-    var next: BlockType {
-        switch self {
-        case .focus:
-            return .break
-        case .break:
-            return .focus
-        }
-    }
-}
-
-struct LockAndWorkWidgetAttributes: ActivityAttributes {
-    public struct ContentState: Codable, Hashable {
-        var endDate: Date
-        var blockType: BlockType
-    }
-    
-    var blockType: BlockType
-}
-*/
+// Import the shared attributes file
+// The target membership for SharedActivityAttributes.swift should include both the main app and widget extension
+import LockAndWork
 
 struct LockAndWorkWidgetLiveActivity: Widget {
     var body: some WidgetConfiguration {
@@ -149,10 +118,6 @@ struct LockAndWorkWidgetLiveActivity: Widget {
             }
             .keylineTint(context.attributes.blockType == .focus ? Color.blue : Color.green)
         }
-        // Remove these contentMargins modifiers
-        // .contentMargins(.all, 0, for: .compactLeading)
-        // .contentMargins(.all, 0, for: .compactTrailing)
-        // .contentMargins(.top, 4, for: .expanded)
         .widgetURL(URL(string: "lockandwork://timer"))
     }
     
@@ -283,37 +248,25 @@ struct LockScreenLiveActivityView: View {
     }
 }
 
-// Preview data
-extension LockAndWorkWidgetAttributes {
-    fileprivate static var preview: LockAndWorkWidgetAttributes {
-        LockAndWorkWidgetAttributes(blockType: .focus)
-    }
-}
-
-extension LockAndWorkWidgetAttributes.ContentState {
-    fileprivate static var focus: LockAndWorkWidgetAttributes.ContentState {
-        LockAndWorkWidgetAttributes.ContentState(
-            endDate: Date().addingTimeInterval(15 * 60),
-            blockType: .focus
-        )
-    }
-    
-    fileprivate static var breakTime: LockAndWorkWidgetAttributes.ContentState {
-        LockAndWorkWidgetAttributes.ContentState(
-            endDate: Date().addingTimeInterval(5 * 60),
-            blockType: .break
-        )
-    }
-}
-
-#Preview("Focus", as: .content, using: LockAndWorkWidgetAttributes.preview) {
+// Preview data - Using literal values for preview since we're importing the definitions
+#Preview("Focus", as: .content) {
    LockAndWorkWidgetLiveActivity()
-} contentStates: {
-    LockAndWorkWidgetAttributes.ContentState.focus
+} contentState: {
+    LockAndWorkWidgetAttributes.ContentState(
+        endDate: Date().addingTimeInterval(15 * 60),
+        blockType: .focus
+    )
+} attributes: {
+    LockAndWorkWidgetAttributes(blockType: .focus)
 }
 
-#Preview("Break", as: .content, using: LockAndWorkWidgetAttributes(blockType: .break)) {
+#Preview("Break", as: .content) {
    LockAndWorkWidgetLiveActivity()
-} contentStates: {
-    LockAndWorkWidgetAttributes.ContentState.breakTime
+} contentState: {
+    LockAndWorkWidgetAttributes.ContentState(
+        endDate: Date().addingTimeInterval(5 * 60),
+        blockType: .break
+    )
+} attributes: {
+    LockAndWorkWidgetAttributes(blockType: .break)
 }

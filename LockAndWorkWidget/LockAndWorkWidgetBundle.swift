@@ -10,6 +10,7 @@ import SwiftUI
 @main
 struct LockAndWorkWidgetBundle: WidgetBundle {
     var body: some Widget {
+        // Removed the standard widget if you don't need it
         LockAndWorkWidgetLiveActivity()
     }
 }

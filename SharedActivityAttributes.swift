@@ -7,13 +7,12 @@
 import ActivityKit
 import SwiftUI
 
-// Only include this if you don't already have it in your main app
-// Otherwise, use your existing BlockType enum
-enum BlockType: Int, Codable, CaseIterable {
+// Making these public so they can be accessed from the widget extension
+public enum BlockType: Int, Codable, CaseIterable {
     case focus
     case `break`
     
-    var displayName: String {
+    public var displayName: String {
         switch self {
         case .focus:
             return String(localized: "Focus")
@@ -22,7 +21,7 @@ enum BlockType: Int, Codable, CaseIterable {
         }
     }
     
-    var next: BlockType {
+    public var next: BlockType {
         switch self {
         case .focus:
             return .break
@@ -33,7 +32,7 @@ enum BlockType: Int, Codable, CaseIterable {
 }
 
 struct LockAndWorkWidgetAttributes: ActivityAttributes {
-    public struct ContentState: Codable, Hashable {
+    struct ContentState: Codable, Hashable {
         var endDate: Date
         var blockType: BlockType
     }
