@@ -6,15 +6,15 @@ struct TimerView: View {
     @EnvironmentObject var viewModel: MainTimerViewModel
     @Environment(\.scenePhase) private var scenePhase
     
-    // State para UI updates
-    @State private var timerTick = 0
-    
-    // Timer para actualizaciones fluidas de UI (más frecuente que el timer real)
-    let timer = Timer.publish(every: 0.25, on: .main, in: .common).autoconnect()
-    
     // Colors
     private let focusColor = Color.blue
     private let breakColor = Color.green
+    
+    // Timer para actualizaciones fluidas de UI (más frecuente que el timer real)
+    let refreshTimer = Timer.publish(every: 0.1, on: .main, in: .common).autoconnect()
+    
+    // Estado para forzar actualizaciones de UI
+    @State private var refreshID = UUID()
     
     var body: some View {
         VStack(spacing: 30) {
@@ -22,9 +22,11 @@ struct TimerView: View {
             
             // Type label
             Text(viewModel.timerService.currentBlockType.displayName.uppercased())
-                .font(.headline)
+                .font(.title2)
+                .fontWeight(.bold)
                 .foregroundColor(viewModel.timerService.currentBlockType == .focus ? focusColor : breakColor)
                 .padding(.vertical, 8)
+                .id("\(viewModel.timerService.currentBlockType)-\(refreshID)")
                 .animation(.easeInOut, value: viewModel.timerService.currentBlockType)
             
             // Timer Circle with text
@@ -36,26 +38,29 @@ struct TimerView: View {
                 
                 // Progress circle
                 Circle()
-                    .trim(from: 0, to: progress())
+                    .trim(from: 0, to: viewModel.timerService.timeProgress())
                     .stroke(
                         viewModel.timerService.currentBlockType == .focus ? focusColor : breakColor,
                         style: StrokeStyle(lineWidth: 15, lineCap: .round)
                     )
                     .frame(width: 280, height: 280)
                     .rotationEffect(.degrees(-90))
-                    .animation(.linear(duration: 0.25), value: progress())
+                    .animation(.linear(duration: 0.1), value: viewModel.timerService.timeProgress())
+                    .id("progress-\(refreshID)")
                 
                 // Indicator dot on the progress circle
                 if viewModel.timerService.isRunning {
+                    let progress = viewModel.timerService.timeProgress()
                     Circle()
                         .fill(viewModel.timerService.currentBlockType == .focus ? focusColor : breakColor)
                         .frame(width: 12, height: 12)
                         .offset(
-                            x: 140 * cos(2 * .pi * progress() - .pi/2),
-                            y: 140 * sin(2 * .pi * progress() - .pi/2)
+                            x: 140 * cos(2 * .pi * progress - .pi/2),
+                            y: 140 * sin(2 * .pi * progress - .pi/2)
                         )
-                        .opacity(0.8)
-                        .animation(.linear(duration: 0.25), value: progress())
+                        .opacity(progress > 0 ? 0.8 : 0)
+                        .animation(.linear(duration: 0.1), value: progress)
+                        .id("dot-\(refreshID)")
                 }
                 
                 // Time display
@@ -63,7 +68,9 @@ struct TimerView: View {
                     Text(viewModel.timerService.formattedTime())
                         .font(.system(size: 60, weight: .bold, design: .rounded))
                         .monospacedDigit()
-                        .contentTransition(.numericText(countsDown: true)) // iOS 17+ animated countdown
+                        .foregroundColor(.primary)
+                        .contentTransition(.numericText(countsDown: true))
+                        .id("time-\(refreshID)")
                 }
             }
             .padding(.bottom, 20)
@@ -132,9 +139,11 @@ struct TimerView: View {
             Spacer()
         }
         .padding()
-        // Force UI updates
-        .onReceive(timer) { _ in
-            timerTick += 1 // Esto fuerza la actualización de la UI cada 0.25 segundos
+        // Forzar actualizaciones de UI con el timer
+        .onReceive(refreshTimer) { _ in
+            if viewModel.timerService.isRunning {
+                self.refreshID = UUID() // Forzar redibujado de elementos clave
+            }
         }
         // Handle app lifecycle changes
         .onChange(of: scenePhase) { oldPhase, newPhase in
@@ -142,30 +151,18 @@ struct TimerView: View {
         }
     }
     
-    // Progress calculation for the circle
-    private func progress() -> Double {
-        return viewModel.timerService.timeProgress()
-    }
-    
     // Handle app lifecycle changes to maintain Live Activity
     private func handleScenePhaseChange(from oldPhase: ScenePhase, to newPhase: ScenePhase) {
         // When app goes to background
         if oldPhase == .active && (newPhase == .background || newPhase == .inactive) {
-            if !viewModel.isPaused && viewModel.settings.liveActivityEnabled {
+            if viewModel.timerService.isRunning && viewModel.settings.liveActivityEnabled {
                 // Start or update Live Activity when app goes to background
-                let endDate = Date().addingTimeInterval(TimeInterval(viewModel.timerService.remainingSeconds))
+                let timeRemaining = TimeInterval(viewModel.timerService.remainingSeconds)
+                let endDate = Date().addingTimeInterval(timeRemaining)
                 ActivityManager.shared.startActivity(
                     endDate: endDate,
                     blockType: viewModel.timerService.currentBlockType
                 )
-            }
-        }
-        
-        // When app comes to foreground
-        if newPhase == .active && oldPhase != .active {
-            if !viewModel.isPaused && viewModel.settings.liveActivityEnabled {
-                // End Live Activity when returning to app while timer is running
-                ActivityManager.shared.endActivity()
             }
         }
     }

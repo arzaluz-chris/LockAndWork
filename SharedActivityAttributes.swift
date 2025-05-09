@@ -10,12 +10,18 @@ import SwiftUI
 // Making these public so they can be accessed from the widget extension
 public struct LockAndWorkWidgetAttributes: ActivityAttributes, Codable {
     public struct ContentState: Codable, Hashable {
+        // La endDate representa cuándo termina el temporizador
         public var endDate: Date
         public var blockType: BlockType
         
         public init(endDate: Date, blockType: BlockType) {
             self.endDate = endDate
             self.blockType = blockType
+        }
+        
+        // Función auxiliar para obtener el intervalo de tiempo para mostrar
+        public func getTimerInterval() -> ClosedRange<Date> {
+            return endDate...endDate
         }
     }
     

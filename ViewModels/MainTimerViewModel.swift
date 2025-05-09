@@ -37,7 +37,6 @@ class MainTimerViewModel: ObservableObject {
             
         // Observe when timer reaches zero
         timerService.$remainingSeconds
-            .debounce(for: .milliseconds(100), scheduler: RunLoop.main)
             .sink { [weak self] seconds in
                 if seconds <= 0 && self?.timerService.isRunning == false {
                     self?.handleBlockCompletion()
@@ -47,8 +46,12 @@ class MainTimerViewModel: ObservableObject {
     }
     
     func startTimer() {
+        print("Starting timer...")
+        
+        // Iniciar el temporizador interno
         timerService.start()
         
+        // Inicia la Live Activity si está habilitada
         if settings.liveActivityEnabled {
             let endDate = Date().addingTimeInterval(TimeInterval(timerService.remainingSeconds))
             ActivityManager.shared.startActivity(
@@ -59,6 +62,7 @@ class MainTimerViewModel: ObservableObject {
     }
     
     func pauseTimer() {
+        print("Pausing timer...")
         timerService.pause()
         if settings.liveActivityEnabled {
             ActivityManager.shared.endActivity()
@@ -66,6 +70,7 @@ class MainTimerViewModel: ObservableObject {
     }
     
     func resetTimer() {
+        print("Resetting timer...")
         timerService.stop()
         if settings.liveActivityEnabled {
             ActivityManager.shared.endActivity()

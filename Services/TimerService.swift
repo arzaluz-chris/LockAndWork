@@ -13,10 +13,10 @@ class TimerService: ObservableObject {
     // Estado interno
     private var startTime: Date?
     private var pausedTimeRemaining: Int?
+    private var endDate: Date?
     private var settings: Settings
     private var audioPlayer: AVAudioPlayer?
     private var timerCancellable: AnyCancellable?
-    private static var lastLiveActivityUpdate = Date()
     
     init(settings: Settings) {
         self.settings = settings
@@ -42,6 +42,7 @@ class TimerService: ObservableObject {
         stopTimer()
         remainingSeconds = minutesForCurrentBlock() * 60
         startTime = nil
+        endDate = nil
         pausedTimeRemaining = nil
         isRunning = false
     }
@@ -51,14 +52,18 @@ class TimerService: ObservableObject {
         
         isRunning = true
         
-        // Si tenemos tiempo pausado, calculamos el startTime basado en ese tiempo
+        // Calcular la fecha de finalización basada en los segundos restantes
+        let totalSeconds = minutesForCurrentBlock() * 60
+        
+        // Si tenemos tiempo pausado, usamos ese valor para calcular endDate
         if let pausedTime = pausedTimeRemaining {
-            let totalSeconds = Double(minutesForCurrentBlock() * 60)
-            let elapsedSeconds = totalSeconds - Double(pausedTime)
-            startTime = Date().addingTimeInterval(-elapsedSeconds)
+            remainingSeconds = pausedTime
+            endDate = Date().addingTimeInterval(TimeInterval(pausedTime))
+            startTime = Date().addingTimeInterval(-TimeInterval(totalSeconds - pausedTime))
         } else {
+            remainingSeconds = totalSeconds
+            endDate = Date().addingTimeInterval(TimeInterval(totalSeconds))
             startTime = Date()
-            remainingSeconds = minutesForCurrentBlock() * 60
         }
         
         // Limpiar el tiempo pausado
@@ -70,39 +75,31 @@ class TimerService: ObservableObject {
             .sink { [weak self] _ in
                 self?.updateRemainingTime()
             }
+            
+        print("Timer started with \(remainingSeconds) seconds remaining")
+        print("End date set to: \(endDate?.description ?? "nil")")
+        
+        // Iniciar Live Activity si está habilitada - solo una vez es suficiente
+        // ya que TimelineView mantendrá las actualizaciones
+        if settings.liveActivityEnabled, let endDate = endDate {
+            ActivityManager.shared.startActivity(
+                endDate: endDate,
+                blockType: currentBlockType
+            )
+        }
     }
     
     private func updateRemainingTime() {
-        guard let start = startTime, isRunning else { return }
+        guard isRunning, let end = endDate else { return }
         
-        let elapsed = Date().timeIntervalSince(start)
-        let totalSeconds = Double(minutesForCurrentBlock() * 60)
-        
-        // Actualizar segundos restantes
-        remainingSeconds = max(0, Int(totalSeconds - elapsed))
-        
-        // Actualizar Live Activity cada 2 segundos (para evitar actualizaciones excesivas)
-        let now = Date()
-        if now.timeIntervalSince(TimerService.lastLiveActivityUpdate) >= 2 && settings.liveActivityEnabled {
-            updateLiveActivity()
-            TimerService.lastLiveActivityUpdate = now
-        }
+        // Calcular segundos restantes basados en la fecha de finalización
+        let remaining = max(0, end.timeIntervalSinceNow)
+        remainingSeconds = Int(remaining)
         
         // Verificar si el timer llegó a cero
         if remainingSeconds <= 0 {
             completeCurrentBlock()
         }
-    }
-    
-    private func updateLiveActivity() {
-        // Calcular la fecha de finalización basada en los segundos restantes
-        let updatedEndDate = Date().addingTimeInterval(TimeInterval(remainingSeconds))
-        
-        // Actualizar Live Activity
-        ActivityManager.shared.updateActivity(
-            endDate: updatedEndDate,
-            blockType: currentBlockType
-        )
     }
     
     func pause() {
@@ -114,6 +111,7 @@ class TimerService: ObservableObject {
         // Guardar el tiempo actual para reanudar desde este punto
         pausedTimeRemaining = remainingSeconds
         startTime = nil
+        endDate = nil
         
         // Detener Live Activity
         if settings.liveActivityEnabled {
@@ -153,6 +151,7 @@ class TimerService: ObservableObject {
         remainingSeconds = minutesForCurrentBlock() * 60
         pausedTimeRemaining = nil
         startTime = nil
+        endDate = nil
         
         // Detener Live Activity
         if settings.liveActivityEnabled {

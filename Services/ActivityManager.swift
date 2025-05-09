@@ -7,12 +7,12 @@ class ActivityManager {
     
     // Referencia a la Live Activity actual
     private var activity: Activity<LockAndWorkWidgetAttributes>?
-    private var updateTimer: Timer?
     
     private init() {}
     
     func startActivity(endDate: Date, blockType: BlockType) {
-        endActivity() // Terminar cualquier actividad existente
+        // Terminar cualquier actividad existente primero
+        endActivity()
         
         // Verificar si están habilitadas las Live Activities
         guard ActivityAuthorizationInfo().areActivitiesEnabled else {
@@ -27,6 +27,8 @@ class ActivityManager {
             blockType: blockType
         )
         
+        // No establecer staleDate - terminará manualmente cuando sea necesario
+        
         // Intentar crear la Live Activity
         do {
             activity = try Activity.request(
@@ -34,10 +36,7 @@ class ActivityManager {
                 content: ActivityContent(state: initialState, staleDate: nil)
             )
             
-            print("Live Activity started successfully")
-            
-            // Iniciar las actualizaciones periódicas
-            startPeriodicUpdates(endDate: endDate, blockType: blockType)
+            print("Live Activity started with end date: \(endDate)")
             
         } catch {
             print("Error starting Live Activity: \(error.localizedDescription)")
@@ -45,8 +44,8 @@ class ActivityManager {
     }
     
     func updateActivity(endDate: Date, blockType: BlockType) {
-        // Si no hay actividad, iniciar una nueva
-        guard let activity = activity else {
+        guard let activity = self.activity else {
+            // Si no hay actividad, iniciar una nueva
             startActivity(endDate: endDate, blockType: blockType)
             return
         }
@@ -62,15 +61,12 @@ class ActivityManager {
             await activity.update(
                 ActivityContent(state: updatedState, staleDate: nil)
             )
+            print("Live Activity updated with end date: \(endDate)")
         }
     }
     
     func endActivity() {
-        // Detener las actualizaciones periódicas
-        updateTimer?.invalidate()
-        updateTimer = nil
-        
-        // Terminar la actividad en vivo
+        // Terminar la actividad en vivo si existe
         guard let activity = activity else { return }
         
         Task {
@@ -78,33 +74,8 @@ class ActivityManager {
                 ActivityContent(state: activity.content.state, staleDate: nil),
                 dismissalPolicy: .immediate
             )
+            print("Live Activity ended")
             self.activity = nil
         }
-    }
-    
-    // Método privado para iniciar actualizaciones periódicas
-    private func startPeriodicUpdates(endDate: Date, blockType: BlockType) {
-        // Detener timer existente si hay uno
-        updateTimer?.invalidate()
-        
-        // Crear un nuevo timer para actualizaciones periódicas (cada 2 segundos)
-        updateTimer = Timer.scheduledTimer(withTimeInterval: 2.0, repeats: true) { [weak self] _ in
-            guard let self = self, self.activity != nil else { return }
-            
-            // Calcular el endDate actualizado basado en el tiempo actual
-            let remainingTime = endDate.timeIntervalSinceNow
-            if remainingTime <= 0 {
-                // Si el tiempo ha expirado, terminar la actividad
-                self.endActivity()
-                return
-            }
-            
-            // Actualizar con el tiempo restante calculado desde ahora
-            let updatedEndDate = Date().addingTimeInterval(remainingTime)
-            self.updateActivity(endDate: updatedEndDate, blockType: blockType)
-        }
-        
-        // Asegurar que el timer funcione incluso durante scrolling
-        RunLoop.current.add(updateTimer!, forMode: .common)
     }
 }
