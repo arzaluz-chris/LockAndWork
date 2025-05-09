@@ -16,6 +16,7 @@ class TimerService: ObservableObject {
     private var settings: Settings
     private var audioPlayer: AVAudioPlayer?
     private var timerCancellable: AnyCancellable?
+    private static var lastLiveActivityUpdate = Date()
     
     init(settings: Settings) {
         self.settings = settings
@@ -50,9 +51,11 @@ class TimerService: ObservableObject {
         
         isRunning = true
         
-        // Si tenemos tiempo pausado, usamos ese valor; de lo contrario, usamos el tiempo completo
+        // Si tenemos tiempo pausado, calculamos el startTime basado en ese tiempo
         if let pausedTime = pausedTimeRemaining {
-            startTime = Date().addingTimeInterval(-Double(minutesForCurrentBlock() * 60 - pausedTime))
+            let totalSeconds = Double(minutesForCurrentBlock() * 60)
+            let elapsedSeconds = totalSeconds - Double(pausedTime)
+            startTime = Date().addingTimeInterval(-elapsedSeconds)
         } else {
             startTime = Date()
             remainingSeconds = minutesForCurrentBlock() * 60
@@ -61,7 +64,7 @@ class TimerService: ObservableObject {
         // Limpiar el tiempo pausado
         pausedTimeRemaining = nil
         
-        // Crear un nuevo timer que publique cada 0.1 segundos
+        // Crear un nuevo timer que publique cada 0.1 segundos para una UI más fluida
         timerCancellable = Timer.publish(every: 0.1, on: .main, in: .common)
             .autoconnect()
             .sink { [weak self] _ in
@@ -74,12 +77,32 @@ class TimerService: ObservableObject {
         
         let elapsed = Date().timeIntervalSince(start)
         let totalSeconds = Double(minutesForCurrentBlock() * 60)
+        
+        // Actualizar segundos restantes
         remainingSeconds = max(0, Int(totalSeconds - elapsed))
+        
+        // Actualizar Live Activity cada 2 segundos (para evitar actualizaciones excesivas)
+        let now = Date()
+        if now.timeIntervalSince(TimerService.lastLiveActivityUpdate) >= 2 && settings.liveActivityEnabled {
+            updateLiveActivity()
+            TimerService.lastLiveActivityUpdate = now
+        }
         
         // Verificar si el timer llegó a cero
         if remainingSeconds <= 0 {
             completeCurrentBlock()
         }
+    }
+    
+    private func updateLiveActivity() {
+        // Calcular la fecha de finalización basada en los segundos restantes
+        let updatedEndDate = Date().addingTimeInterval(TimeInterval(remainingSeconds))
+        
+        // Actualizar Live Activity
+        ActivityManager.shared.updateActivity(
+            endDate: updatedEndDate,
+            blockType: currentBlockType
+        )
     }
     
     func pause() {
@@ -91,11 +114,21 @@ class TimerService: ObservableObject {
         // Guardar el tiempo actual para reanudar desde este punto
         pausedTimeRemaining = remainingSeconds
         startTime = nil
+        
+        // Detener Live Activity
+        if settings.liveActivityEnabled {
+            ActivityManager.shared.endActivity()
+        }
     }
     
     func stop() {
         stopTimer()
         resetTimer()
+        
+        // Detener Live Activity
+        if settings.liveActivityEnabled {
+            ActivityManager.shared.endActivity()
+        }
     }
     
     private func stopTimer() {
@@ -120,6 +153,11 @@ class TimerService: ObservableObject {
         remainingSeconds = minutesForCurrentBlock() * 60
         pausedTimeRemaining = nil
         startTime = nil
+        
+        // Detener Live Activity
+        if settings.liveActivityEnabled {
+            ActivityManager.shared.endActivity()
+        }
     }
     
     func minutesForCurrentBlock() -> Int {
@@ -147,6 +185,13 @@ class TimerService: ObservableObject {
     func timeProgress() -> Double {
         let totalSeconds = Double(minutesForCurrentBlock() * 60)
         let remaining = Double(remainingSeconds)
+        
+        // Para evitar división por cero
+        if totalSeconds <= 0 {
+            return 0
+        }
+        
+        // El progreso es el porcentaje de tiempo que ha pasado
         return (totalSeconds - remaining) / totalSeconds
     }
 }

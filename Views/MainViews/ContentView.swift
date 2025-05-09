@@ -21,22 +21,23 @@ struct ContentView: View {
     
     var body: some View {
         TabView {
+            // Crear explícitamente las instancias de ViewModel y pasarlas como environmentObject
             TimerView()
-                .environment(\.modelContext, modelContext)
-                .environmentObject(MainTimerViewModel(modelContext: modelContext, settings: settings))
+                .environmentObject(MainTimerViewModel(
+                    modelContext: modelContext,
+                    settings: settings
+                ))
                 .tabItem {
                     Label("Timer", systemImage: "timer")
                 }
             
             HistoryView()
-                .environment(\.modelContext, modelContext)
                 .environmentObject(HistoryViewModel(modelContext: modelContext))
                 .tabItem {
                     Label("History", systemImage: "chart.bar")
                 }
             
             SettingsView()
-                .environment(\.modelContext, modelContext)
                 .environmentObject(SettingsViewModel(modelContext: modelContext))
                 .tabItem {
                     Label("Settings", systemImage: "gearshape")

@@ -1,9 +1,4 @@
 //  LockAndWorkWidgetLiveActivity.swift
-//  LockAndWorkWidget
-//
-//  Created by Christian Arzaluz on 07/05/25.
-//
-
 import ActivityKit
 import WidgetKit
 import SwiftUI
@@ -38,7 +33,7 @@ struct LockAndWorkWidgetLiveActivity: Widget {
                 }
                 
                 DynamicIslandExpandedRegion(.trailing) {
-                    Text(timeRemaining(from: context.state.endDate))
+                    Text(getTimeRemaining(from: context.state.endDate))
                         .font(.system(size: 28, weight: .bold, design: .rounded))
                         .monospacedDigit()
                         .foregroundColor(.primary)
@@ -54,7 +49,7 @@ struct LockAndWorkWidgetLiveActivity: Widget {
                                 .foregroundColor(.secondary)
                         } else {
                             // Progress bar
-                            ProgressView(value: progressValue(context: context), total: 1.0)
+                            ProgressView(value: calculateProgress(context: context), total: 1.0)
                                 .progressViewStyle(.linear)
                                 .tint(context.attributes.blockType == .focus ? Color.blue : Color.green)
                                 .scaleEffect(x: 1, y: 2, anchor: .center)
@@ -95,7 +90,7 @@ struct LockAndWorkWidgetLiveActivity: Widget {
                 }
             } compactTrailing: {
                 // Compact trailing presentation (right side)
-                Text(timeRemaining(from: context.state.endDate))
+                Text(getTimeRemaining(from: context.state.endDate))
                     .font(.system(size: 14, weight: .semibold, design: .rounded))
                     .monospacedDigit()
                     .foregroundColor(.white)
@@ -117,35 +112,41 @@ struct LockAndWorkWidgetLiveActivity: Widget {
     }
     
     // Helper function to calculate time remaining
-    private func timeRemaining(from endDate: Date) -> String {
-        let remaining = max(0, endDate.timeIntervalSinceNow)
+    private func getTimeRemaining(from endDate: Date) -> String {
+        let now = Date()
+        let remaining = max(0, endDate.timeIntervalSince(now))
+        
         let minutes = Int(remaining) / 60
         let seconds = Int(remaining) % 60
+        
         return String(format: "%02d:%02d", minutes, seconds)
     }
     
     // Helper function to calculate progress
-    private func progressValue(context: ActivityViewContext<LockAndWorkWidgetAttributes>) -> Double {
+    private func calculateProgress(context: ActivityViewContext<LockAndWorkWidgetAttributes>) -> Double {
         let endDate = context.state.endDate
-        let totalDuration: TimeInterval
+        let now = Date()
         
-        // Determine block type duration
+        // Calcular duración total basada en blockType
+        let totalDuration: TimeInterval
         if context.attributes.blockType == .focus {
-            totalDuration = 25 * 60 // Default 25 minutes for focus
+            totalDuration = 25 * 60 // Por defecto 25 min para focus
         } else {
-            totalDuration = 5 * 60 // Default 5 minutes for break
+            totalDuration = 5 * 60 // Por defecto 5 min para break
         }
         
-        let elapsed = totalDuration - max(0, endDate.timeIntervalSinceNow)
-        return min(1.0, max(0.0, elapsed / totalDuration))
+        // Calcular el tiempo transcurrido y restante
+        let remainingTime = max(0, endDate.timeIntervalSince(now))
+        let elapsedTime = totalDuration - remainingTime
+        
+        // Asegurar que el progreso esté entre 0 y 1
+        return min(1.0, max(0.0, elapsedTime / totalDuration))
     }
 }
 
 // Lock Screen presentation view
 struct LockScreenLiveActivityView: View {
     let context: ActivityViewContext<LockAndWorkWidgetAttributes>
-    // This environment value may not be available in older iOS versions
-    // If it causes issues, you can remove it and use a constant size
     @Environment(\.isActivityFullscreen) private var isActivityFullscreen
     
     var body: some View {
@@ -171,7 +172,7 @@ struct LockScreenLiveActivityView: View {
                 Spacer()
                 
                 // Time remaining
-                Text(timeRemaining(from: context.state.endDate))
+                Text(getTimeRemaining(from: context.state.endDate))
                     .font(.system(size: isActivityFullscreen ? 32 : 24, weight: .bold, design: .rounded))
                     .monospacedDigit()
                     .foregroundColor(.primary)
@@ -180,7 +181,7 @@ struct LockScreenLiveActivityView: View {
             
             if !context.isStale {
                 // Progress bar
-                ProgressView(value: progressValue(context: context), total: 1.0)
+                ProgressView(value: calculateProgress(context: context), total: 1.0)
                     .progressViewStyle(.linear)
                     .tint(context.attributes.blockType == .focus ? Color.blue : Color.green)
                     .scaleEffect(x: 1, y: 2, anchor: .center)
@@ -219,31 +220,38 @@ struct LockScreenLiveActivityView: View {
     }
     
     // Helper function to calculate time remaining
-    private func timeRemaining(from endDate: Date) -> String {
-        let remaining = max(0, endDate.timeIntervalSinceNow)
+    private func getTimeRemaining(from endDate: Date) -> String {
+        let now = Date()
+        let remaining = max(0, endDate.timeIntervalSince(now))
+        
         let minutes = Int(remaining) / 60
         let seconds = Int(remaining) % 60
+        
         return String(format: "%02d:%02d", minutes, seconds)
     }
     
     // Helper function to calculate progress
-    private func progressValue(context: ActivityViewContext<LockAndWorkWidgetAttributes>) -> Double {
+    private func calculateProgress(context: ActivityViewContext<LockAndWorkWidgetAttributes>) -> Double {
         let endDate = context.state.endDate
-        let totalDuration: TimeInterval
+        let now = Date()
         
-        // Determine block type duration
+        // Calcular duración total basada en blockType
+        let totalDuration: TimeInterval
         if context.attributes.blockType == .focus {
-            totalDuration = 25 * 60 // Default 25 minutes for focus
+            totalDuration = 25 * 60 // Por defecto 25 min para focus
         } else {
-            totalDuration = 5 * 60 // Default 5 minutes for break
+            totalDuration = 5 * 60 // Por defecto 5 min para break
         }
         
-        let elapsed = totalDuration - max(0, endDate.timeIntervalSinceNow)
-        return min(1.0, max(0.0, elapsed / totalDuration))
+        // Calcular el tiempo transcurrido y restante
+        let remainingTime = max(0, endDate.timeIntervalSince(now))
+        let elapsedTime = totalDuration - remainingTime
+        
+        // Asegurar que el progreso esté entre 0 y 1
+        return min(1.0, max(0.0, elapsedTime / totalDuration))
     }
 }
 
-// Simplified preview - Using an empty preview for now
 #Preview {
     EmptyView()
 }

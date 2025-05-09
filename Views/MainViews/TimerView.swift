@@ -6,10 +6,10 @@ struct TimerView: View {
     @EnvironmentObject var viewModel: MainTimerViewModel
     @Environment(\.scenePhase) private var scenePhase
     
-    // State for UI updates
+    // State para UI updates
     @State private var timerTick = 0
     
-    // Timer for smooth UI updates (more frequent than the actual timer)
+    // Timer para actualizaciones fluidas de UI (más frecuente que el timer real)
     let timer = Timer.publish(every: 0.25, on: .main, in: .common).autoconnect()
     
     // Colors
@@ -134,7 +134,7 @@ struct TimerView: View {
         .padding()
         // Force UI updates
         .onReceive(timer) { _ in
-            timerTick += 1
+            timerTick += 1 // Esto fuerza la actualización de la UI cada 0.25 segundos
         }
         // Handle app lifecycle changes
         .onChange(of: scenePhase) { oldPhase, newPhase in
@@ -144,11 +144,7 @@ struct TimerView: View {
     
     // Progress calculation for the circle
     private func progress() -> Double {
-        let totalSeconds = Double(viewModel.timerService.minutesForCurrentBlock() * 60)
-        let remaining = Double(viewModel.timerService.remainingSeconds)
-        
-        // Ensure progress is between 0 and 1
-        return min(1.0, max(0.0, 1.0 - (remaining / totalSeconds)))
+        return viewModel.timerService.timeProgress()
     }
     
     // Handle app lifecycle changes to maintain Live Activity
@@ -167,7 +163,7 @@ struct TimerView: View {
         
         // When app comes to foreground
         if newPhase == .active && oldPhase != .active {
-            if !viewModel.isPaused {
+            if !viewModel.isPaused && viewModel.settings.liveActivityEnabled {
                 // End Live Activity when returning to app while timer is running
                 ActivityManager.shared.endActivity()
             }
