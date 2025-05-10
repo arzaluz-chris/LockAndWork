@@ -11,8 +11,9 @@ class NotificationManager: NSObject {
         UNUserNotificationCenter.current().delegate = self
     }
     
+    /// Request notification permissions from the user
     func requestPermission(completion: @escaping (Bool) -> Void) {
-        UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .sound]) { granted, error in
+        UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .sound, .badge]) { granted, error in
             DispatchQueue.main.async {
                 completion(granted)
             }
@@ -23,6 +24,10 @@ class NotificationManager: NSObject {
         }
     }
     
+    /// Schedule a notification for the given block type at the specified date
+    /// - Parameters:
+    ///   - blockType: The type of block that is ending/starting
+    ///   - date: When to show the notification
     func scheduleNotification(for blockType: BlockType, at date: Date) {
         let content = UNMutableNotificationContent()
         
@@ -39,29 +44,52 @@ class NotificationManager: NSObject {
         content.sound = .default
         content.categoryIdentifier = "LOCK_AND_WORK"
         
-        // Create trigger based on date
-        let triggerDate = Calendar.current.dateComponents([.year, .month, .day, .hour, .minute, .second], from: date)
-        let trigger = UNCalendarNotificationTrigger(dateMatching: triggerDate, repeats: false)
-        
-        // Create notification request
-        let request = UNNotificationRequest(
-            identifier: UUID().uuidString,
-            content: content,
-            trigger: trigger
-        )
-        
-        // Schedule notification
-        UNUserNotificationCenter.current().add(request) { error in
-            if let error = error {
-                print("Error scheduling notification: \(error.localizedDescription)")
+        // Create trigger based on date - immediate trigger if date is now or in the past
+        if date <= Date() {
+            // Trigger immediately
+            let trigger = UNTimeIntervalNotificationTrigger(timeInterval: 1, repeats: false)
+            
+            // Create notification request
+            let request = UNNotificationRequest(
+                identifier: UUID().uuidString,
+                content: content,
+                trigger: trigger
+            )
+            
+            // Schedule notification
+            UNUserNotificationCenter.current().add(request) { error in
+                if let error = error {
+                    print("Error scheduling immediate notification: \(error.localizedDescription)")
+                }
+            }
+        } else {
+            // Schedule for future date
+            let triggerDate = Calendar.current.dateComponents([.year, .month, .day, .hour, .minute, .second], from: date)
+            let trigger = UNCalendarNotificationTrigger(dateMatching: triggerDate, repeats: false)
+            
+            // Create notification request
+            let request = UNNotificationRequest(
+                identifier: UUID().uuidString,
+                content: content,
+                trigger: trigger
+            )
+            
+            // Schedule notification
+            UNUserNotificationCenter.current().add(request) { error in
+                if let error = error {
+                    print("Error scheduling notification: \(error.localizedDescription)")
+                }
             }
         }
     }
     
+    /// Cancel all pending notifications
     func cancelAllNotifications() {
         UNUserNotificationCenter.current().removeAllPendingNotificationRequests()
     }
     
+    /// Trigger haptic feedback based on block type
+    /// - Parameter blockType: The type of block to trigger feedback for
     func triggerHapticFeedback(for blockType: BlockType) {
         switch blockType {
         case .focus:
@@ -74,7 +102,7 @@ class NotificationManager: NSObject {
     }
 }
 
-// Notification delegate
+// MARK: - Notification delegate
 extension NotificationManager: UNUserNotificationCenterDelegate {
     func userNotificationCenter(_ center: UNUserNotificationCenter,
                                 willPresent notification: UNNotification,

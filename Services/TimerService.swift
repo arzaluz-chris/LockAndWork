@@ -5,12 +5,12 @@ import Combine
 import AVFoundation
 
 class TimerService: ObservableObject {
-    // Estados publicados para vinculación de UI
+    // Published properties for UI binding
     @Published var remainingSeconds: Int = 0
     @Published var isRunning: Bool = false
     @Published var currentBlockType: BlockType = .focus
     
-    // Estado interno
+    // Internal state
     private var startTime: Date?
     private var pausedTimeRemaining: Int?
     private var endDate: Date?
@@ -24,6 +24,7 @@ class TimerService: ObservableObject {
         prepareAudioPlayer()
     }
     
+    /// Prepare the audio player with the bell sound
     private func prepareAudioPlayer() {
         guard let soundURL = Bundle.main.url(forResource: "bell", withExtension: "mp3") else {
             print("Sound file not found")
@@ -38,6 +39,7 @@ class TimerService: ObservableObject {
         }
     }
     
+    /// Reset the timer to its initial state
     func resetTimer() {
         stopTimer()
         remainingSeconds = minutesForCurrentBlock() * 60
@@ -47,15 +49,16 @@ class TimerService: ObservableObject {
         isRunning = false
     }
     
+    /// Start the timer
     func start() {
         guard !isRunning else { return }
         
         isRunning = true
         
-        // Calcular la fecha de finalización basada en los segundos restantes
+        // Calculate end date based on remaining seconds
         let totalSeconds = minutesForCurrentBlock() * 60
         
-        // Si tenemos tiempo pausado, usamos ese valor para calcular endDate
+        // If we have paused time, use that value to calculate endDate
         if let pausedTime = pausedTimeRemaining {
             remainingSeconds = pausedTime
             endDate = Date().addingTimeInterval(TimeInterval(pausedTime))
@@ -66,10 +69,10 @@ class TimerService: ObservableObject {
             startTime = Date()
         }
         
-        // Limpiar el tiempo pausado
+        // Clear paused time
         pausedTimeRemaining = nil
         
-        // Crear un nuevo timer que publique cada 0.1 segundos para una UI más fluida
+        // Create a new timer that publishes every 0.1 seconds for a smoother UI
         timerCancellable = Timer.publish(every: 0.1, on: .main, in: .common)
             .autoconnect()
             .sink { [weak self] _ in
@@ -78,87 +81,67 @@ class TimerService: ObservableObject {
             
         print("Timer started with \(remainingSeconds) seconds remaining")
         print("End date set to: \(endDate?.description ?? "nil")")
-        
-        // Iniciar Live Activity si está habilitada - solo una vez es suficiente
-        // ya que TimelineView mantendrá las actualizaciones
-        if settings.liveActivityEnabled, let endDate = endDate {
-            ActivityManager.shared.startActivity(
-                endDate: endDate,
-                blockType: currentBlockType
-            )
-        }
     }
     
+    /// Update the remaining time based on the end date
     private func updateRemainingTime() {
         guard isRunning, let end = endDate else { return }
         
-        // Calcular segundos restantes basados en la fecha de finalización
+        // Calculate remaining seconds based on end date
         let remaining = max(0, end.timeIntervalSinceNow)
         remainingSeconds = Int(remaining)
         
-        // Verificar si el timer llegó a cero
+        // Check if timer reached zero
         if remainingSeconds <= 0 {
             completeCurrentBlock()
         }
     }
     
+    /// Pause the timer
     func pause() {
         guard isRunning else { return }
         
         isRunning = false
         stopTimer()
         
-        // Guardar el tiempo actual para reanudar desde este punto
+        // Save current time for resuming from this point
         pausedTimeRemaining = remainingSeconds
         startTime = nil
         endDate = nil
-        
-        // Detener Live Activity
-        if settings.liveActivityEnabled {
-            ActivityManager.shared.endActivity()
-        }
     }
     
+    /// Stop the timer completely
     func stop() {
         stopTimer()
         resetTimer()
-        
-        // Detener Live Activity
-        if settings.liveActivityEnabled {
-            ActivityManager.shared.endActivity()
-        }
     }
     
+    /// Stop the timer without resetting
     private func stopTimer() {
         timerCancellable?.cancel()
         timerCancellable = nil
     }
     
+    /// Complete the current block and prepare for next block
     func completeCurrentBlock() {
-        // Detener el timer
+        // Stop timer
         stopTimer()
         isRunning = false
         
-        // Reproducir sonido si está habilitado
+        // Play sound if enabled
         if settings.soundEnabled {
             audioPlayer?.play()
         }
         
-        // Cambiar al siguiente tipo de bloque
-        currentBlockType = currentBlockType.next
-        
-        // Reiniciar el timer con la nueva duración del bloque
-        remainingSeconds = minutesForCurrentBlock() * 60
+        // Reset timer with current block type
+        // Note: We don't change the block type here - that's handled in MainTimerViewModel
+        remainingSeconds = 0
         pausedTimeRemaining = nil
         startTime = nil
         endDate = nil
-        
-        // Detener Live Activity
-        if settings.liveActivityEnabled {
-            ActivityManager.shared.endActivity()
-        }
     }
     
+    /// Get the minutes for the current block type from settings
     func minutesForCurrentBlock() -> Int {
         switch currentBlockType {
         case .focus:
@@ -168,12 +151,14 @@ class TimerService: ObservableObject {
         }
     }
     
+    /// Format the remaining time as a string (MM:SS)
     func formattedTime() -> String {
         let minutes = remainingSeconds / 60
         let seconds = remainingSeconds % 60
         return String(format: "%02d:%02d", minutes, seconds)
     }
     
+    /// Update the settings and reset timer if not running
     func updateSettings(_ newSettings: Settings) {
         self.settings = newSettings
         if !isRunning {
@@ -181,16 +166,17 @@ class TimerService: ObservableObject {
         }
     }
     
+    /// Calculate the progress of the timer (0.0 to 1.0)
     func timeProgress() -> Double {
         let totalSeconds = Double(minutesForCurrentBlock() * 60)
         let remaining = Double(remainingSeconds)
         
-        // Para evitar división por cero
+        // Avoid division by zero
         if totalSeconds <= 0 {
             return 0
         }
         
-        // El progreso es el porcentaje de tiempo que ha pasado
-        return (totalSeconds - remaining) / totalSeconds
+        // Progress is the percentage of time that has passed
+        return min(1.0, max(0.0, (totalSeconds - remaining) / totalSeconds))
     }
 }

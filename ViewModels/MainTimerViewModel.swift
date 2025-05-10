@@ -23,6 +23,7 @@ class MainTimerViewModel: ObservableObject {
         setupSubscriptions()
     }
     
+    /// Set up Combine subscribers for timer events
     private func setupSubscriptions() {
         // Observe timerService.isRunning to update isPaused
         timerService.$isRunning
@@ -37,21 +38,95 @@ class MainTimerViewModel: ObservableObject {
             
         // Observe when timer reaches zero
         timerService.$remainingSeconds
-            .sink { [weak self] seconds in
-                if seconds <= 0 && self?.timerService.isRunning == false {
+            .filter { $0 <= 0 }
+            .sink { [weak self] _ in
+                if self?.timerService.isRunning == false {
                     self?.handleBlockCompletion()
                 }
             }
             .store(in: &cancellables)
     }
     
+    /// Start the timer and create a Live Activity if enabled
     func startTimer() {
         print("Starting timer...")
         
-        // Iniciar el temporizador interno
+        // Start the internal timer
         timerService.start()
         
-        // Inicia la Live Activity si está habilitada
+        // Start Live Activity if enabled
+        if settings.liveActivityEnabled {
+            let endDate = Date().addingTimeInterval(TimeInterval(timerService.remainingSeconds))
+            ActivityManager.shared.startActivity(
+                endDate: endDate,
+                blockType: timerService.currentBlockType
+            )
+        }
+        
+        // Start a new session if needed
+        startSessionIfNeeded()
+    }
+    
+    /// Pause the timer and end Live Activity
+    func pauseTimer() {
+        print("Pausing timer...")
+        timerService.pause()
+        if settings.liveActivityEnabled {
+            ActivityManager.shared.endActivity()
+        }
+    }
+    
+    /// Reset the timer and end Live Activity
+    func resetTimer() {
+        print("Resetting timer...")
+        timerService.stop()
+        if settings.liveActivityEnabled {
+            ActivityManager.shared.endActivity()
+        }
+        
+        // If there's a current session in progress, save it with the current time as end time
+        if let session = currentSession, session.endDate == nil {
+            session.endDate = Date()
+            try? modelContext.save()
+            notifySessionsChanged()
+        }
+        
+        currentSession = nil
+    }
+    
+    /// Handle completion of a timer block
+    func handleBlockCompletion() {
+        print("Block completed! Saving session...")
+        
+        // Store the current block type before changing it
+        let completedBlockType = timerService.currentBlockType
+        
+        // Save completed session
+        saveCurrentSession()
+        
+        // Switch to the next block type
+        timerService.currentBlockType = completedBlockType.next
+        
+        // Trigger notification
+        if settings.soundEnabled {
+            // Schedule notification for the completed block
+            NotificationManager.shared.scheduleNotification(
+                for: completedBlockType.next,
+                at: Date()
+            )
+        }
+        
+        // Trigger haptic feedback
+        if settings.hapticsEnabled {
+            NotificationManager.shared.triggerHapticFeedback(
+                for: completedBlockType
+            )
+        }
+        
+        // Start new session for next block
+        startSessionIfNeeded()
+        
+        // Update or end Live Activity
         if settings.liveActivityEnabled {
             let endDate = Date().addingTimeInterval(TimeInterval(timerService.remainingSeconds))
             ActivityManager.shared.startActivity(
@@ -61,62 +136,7 @@ class MainTimerViewModel: ObservableObject {
         }
     }
     
-    func pauseTimer() {
-        print("Pausing timer...")
-        timerService.pause()
-        if settings.liveActivityEnabled {
-            ActivityManager.shared.endActivity()
-        }
-    }
-    
-    func resetTimer() {
-        print("Resetting timer...")
-        timerService.stop()
-        if settings.liveActivityEnabled {
-            ActivityManager.shared.endActivity()
-        }
-        currentSession = nil
-    }
-    
-    func handleBlockCompletion() {
-        print("Block completed! Saving session...")
-        
-        // Save completed session
-        saveCurrentSession()
-        
-        // Trigger notification
-        if settings.soundEnabled {
-            let nextBlockType = timerService.currentBlockType.next
-            NotificationManager.shared.scheduleNotification(
-                for: nextBlockType,
-                at: Date()
-            )
-        }
-        
-        // Trigger haptic feedback
-        if settings.hapticsEnabled {
-            NotificationManager.shared.triggerHapticFeedback(
-                for: timerService.currentBlockType
-            )
-        }
-        
-        // Start new session for next block
-        startSessionIfNeeded()
-        
-        // Update or end Live Activity
-        if settings.liveActivityEnabled {
-            if timerService.currentBlockType == .focus {
-                let endDate = Date().addingTimeInterval(TimeInterval(timerService.remainingSeconds))
-                ActivityManager.shared.startActivity(
-                    endDate: endDate,
-                    blockType: timerService.currentBlockType
-                )
-            } else {
-                ActivityManager.shared.endActivity()
-            }
-        }
-    }
-    
+    /// Start a new session if one is not already in progress
     private func startSessionIfNeeded() {
         guard currentSession == nil else { return }
         
@@ -125,25 +145,47 @@ class MainTimerViewModel: ObservableObject {
             type: timerService.currentBlockType
         )
         
+        // Insert the session into the model context directly
+        modelContext.insert(newSession)
         currentSession = newSession
+        
         print("Created new session of type: \(timerService.currentBlockType.displayName)")
     }
     
+    /// Save the current session to the database
     private func saveCurrentSession() {
         guard let session = currentSession else { return }
         
-        session.endDate = Date()
-        modelContext.insert(session)
+        // Only set the end date if it's not already set
+        if session.endDate == nil {
+            session.endDate = Date()
+        }
+        
+        // If the session isn't in the model context yet, insert it
+        if session.modelContext == nil {
+            modelContext.insert(session)
+        }
         
         do {
             try modelContext.save()
             print("Successfully saved session to database")
+            // Clear current session after saving
             currentSession = nil
+            // Notify that sessions have changed
+            notifySessionsChanged()
         } catch {
             print("Failed to save session: \(error)")
         }
     }
     
+    /// Notify that sessions have changed
+    private func notifySessionsChanged() {
+        // Post a notification that the sessions have changed
+        NotificationCenter.default.post(name: NSNotification.Name("SessionsDidChange"), object: nil)
+    }
+    
+    /// Get information about the next block
+    /// - Returns: Tuple with the next block type and duration
     func getNextBlockInfo() -> (type: BlockType, duration: Int) {
         let nextType = timerService.currentBlockType.next
         let duration = nextType == .focus ? settings.focusMinutes : settings.breakMinutes

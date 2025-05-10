@@ -9,12 +9,34 @@ class HistoryViewModel: ObservableObject {
     @Published var totalFocusTimeByDate: [Date: TimeInterval] = [:]
     
     private var modelContext: ModelContext
+    private var cancellables = Set<AnyCancellable>()
     
     init(modelContext: ModelContext) {
         self.modelContext = modelContext
         loadSessions()
+        setupNotificationObservers()
     }
     
+    /// Set up notification observers for session changes
+    private func setupNotificationObservers() {
+        // Listen for session changes from MainTimerViewModel
+        NotificationCenter.default
+            .publisher(for: NSNotification.Name("SessionsDidChange"))
+            .sink { [weak self] _ in
+                self?.loadSessions()
+            }
+            .store(in: &cancellables)
+        
+        // Set up a timer to periodically refresh sessions (fallback)
+        Timer.publish(every: 10, on: .main, in: .common)
+            .autoconnect()
+            .sink { [weak self] _ in
+                self?.loadSessions()
+            }
+            .store(in: &cancellables)
+    }
+    
+    /// Load all sessions from the database
     func loadSessions() {
         do {
             let descriptor = FetchDescriptor<Session>(
@@ -27,11 +49,13 @@ class HistoryViewModel: ObservableObject {
         }
     }
     
+    /// Process sessions to organize them by date
     private func processSessions(_ sessions: [Session]) {
         var newSessionsByDate: [Date: [Session]] = [:]
         var newTotalFocusTimeByDate: [Date: TimeInterval] = [:]
         
         for session in sessions {
+            // Skip sessions without an end date
             guard let endDate = session.endDate else { continue }
             
             let calendar = Calendar.current
@@ -65,6 +89,8 @@ class HistoryViewModel: ObservableObject {
         totalFocusTimeByDate = newTotalFocusTimeByDate
     }
     
+    /// Delete a session from the database
+    /// - Parameter session: The session to delete
     func deleteSession(_ session: Session) {
         modelContext.delete(session)
         do {
@@ -75,6 +101,9 @@ class HistoryViewModel: ObservableObject {
         }
     }
     
+    /// Format the total time for a date as a string
+    /// - Parameter date: The date to format time for
+    /// - Returns: Formatted time string
     func formatTotalTime(for date: Date) -> String {
         guard let totalTime = totalFocusTimeByDate[date] else { return "0 min" }
         
@@ -82,6 +111,9 @@ class HistoryViewModel: ObservableObject {
         return "\(minutes) min"
     }
     
+    /// Format a date as a human-readable string
+    /// - Parameter date: The date to format
+    /// - Returns: Formatted date string
     func formattedDate(_ date: Date) -> String {
         let calendar = Calendar.current
         

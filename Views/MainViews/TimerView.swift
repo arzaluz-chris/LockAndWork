@@ -10,10 +10,10 @@ struct TimerView: View {
     private let focusColor = Color.blue
     private let breakColor = Color.green
     
-    // Timer para actualizaciones fluidas de UI (más frecuente que el timer real)
+    // Timer for smooth UI updates (more frequent than the real timer)
     let refreshTimer = Timer.publish(every: 0.1, on: .main, in: .common).autoconnect()
     
-    // Estado para forzar actualizaciones de UI
+    // State to force UI updates
     @State private var refreshID = UUID()
     
     var body: some View {
@@ -139,10 +139,10 @@ struct TimerView: View {
             Spacer()
         }
         .padding()
-        // Forzar actualizaciones de UI con el timer
+        // Force UI updates with the timer
         .onReceive(refreshTimer) { _ in
             if viewModel.timerService.isRunning {
-                self.refreshID = UUID() // Forzar redibujado de elementos clave
+                self.refreshID = UUID() // Force redraw of key elements
             }
         }
         // Handle app lifecycle changes
@@ -164,14 +164,13 @@ struct TimerView: View {
                     blockType: viewModel.timerService.currentBlockType
                 )
             }
+        } else if oldPhase != .active && newPhase == .active {
+            // App becomes active - refresh UI
+            refreshID = UUID()
+            // Refresh the history view
+            if viewModel.settings.liveActivityEnabled {
+                ActivityManager.shared.endActivity()
+            }
         }
     }
-}
-
-#Preview {
-    TimerView()
-        .environmentObject(MainTimerViewModel(
-            modelContext: try! ModelContainer(for: Session.self, Settings.self).mainContext,
-            settings: Settings()
-        ))
 }

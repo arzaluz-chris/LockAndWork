@@ -40,6 +40,7 @@ struct LockAndWorkWidgetLiveActivity: Widget {
                         Text(context.attributes.blockType.displayName)
                             .font(.headline)
                             .foregroundColor(.primary)
+                            .lineLimit(1)
                     }
                     .padding(.leading, 4)
                 }
@@ -51,6 +52,8 @@ struct LockAndWorkWidgetLiveActivity: Widget {
                         .monospacedDigit()
                         .foregroundColor(.primary)
                         .padding(.trailing, 8)
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.8)
                 }
 
                 // Bottom: progress + next
@@ -71,12 +74,13 @@ struct LockAndWorkWidgetLiveActivity: Widget {
                                     ? Color.blue
                                     : Color.green
                             )
-                            .scaleEffect(x: 1, y: 2, anchor: .center)
+                            .scaleEffect(x: 1, y: 1.5, anchor: .center)
 
                             HStack {
                                 Text("Up next: \(context.attributes.blockType.next.displayName)")
                                     .font(.caption)
                                     .foregroundColor(.secondary)
+                                    .lineLimit(1)
                                 Spacer()
                                 Text(
                                     context.attributes.blockType == .focus
@@ -89,7 +93,8 @@ struct LockAndWorkWidgetLiveActivity: Widget {
                         }
                     }
                     .frame(maxWidth: .infinity, alignment: .leading)
-                    .padding(.top, 8)
+                    .padding(.top, 4)  // Reduced padding
+                    .padding(.horizontal, 4)  // Added horizontal padding
                 }
             }
             compactLeading: {
@@ -102,6 +107,7 @@ struct LockAndWorkWidgetLiveActivity: Widget {
                     .monospacedDigit()
                     .foregroundColor(.white)
                     .frame(width: 50, alignment: .trailing)
+                    .lineLimit(1)
             }
             minimal: {
                 ZStack {
@@ -113,10 +119,13 @@ struct LockAndWorkWidgetLiveActivity: Widget {
                         .foregroundColor(.white)
                 }
             }
+            // Add content margins to fix the issue with elements being cut off by Dynamic Island
+            .contentMargins(.all, 8, for: .expanded)
             .keylineTint(context.attributes.blockType == .focus ? Color.blue : Color.green)
         }
     }
 
+    /// Calculate the progress of the current timer session (0.0 to 1.0)
     private func calculateProgress(
         context: ActivityViewContext<LockAndWorkWidgetAttributes>
     ) -> Double {
@@ -129,6 +138,7 @@ struct LockAndWorkWidgetLiveActivity: Widget {
     }
 }
 
+/// Lock Screen Live Activity View
 struct LockScreenLiveActivityView: View {
     let context: ActivityViewContext<LockAndWorkWidgetAttributes>
     @Environment(\.isActivityFullscreen) private var isFullscreen
@@ -155,7 +165,7 @@ struct LockScreenLiveActivityView: View {
                 ProgressView(value: calculateProgress(context: context), total: 1.0)
                     .progressViewStyle(.linear)
                     .tint(context.attributes.blockType == .focus ? Color.blue : Color.green)
-                    .scaleEffect(x: 1, y: 2, anchor: .center)
+                    .scaleEffect(x: 1, y: 1.5, anchor: .center)
 
                 if isFullscreen {
                     VStack(alignment: .leading, spacing: 8) {
@@ -194,8 +204,3 @@ struct LockScreenLiveActivityView: View {
         return min(1, max(0, elapsed / total))
     }
 }
-
-#Preview {
-    EmptyView()
-}
-

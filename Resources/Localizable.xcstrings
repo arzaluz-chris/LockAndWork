@@ -1,6 +1,16 @@
 {
   "sourceLanguage" : "en",
   "strings" : {
+    "%@ session, %lld minutes, at %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "%1$@ session, %2$lld minutes, at %3$@"
+          }
+        }
+      }
+    },
     "%lld min" : {
 
     },
@@ -46,6 +56,9 @@
           }
         }
       }
+    },
+    "Complete your first session to see it here." : {
+
     },
     "Delete" : {
       "localizations" : {
@@ -107,6 +120,16 @@
         }
       }
     },
+    "Next up is %@ for %lld minutes" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Next up is %1$@ for %2$lld minutes"
+          }
+        }
+      }
+    },
     "Next: %@ - %lld min" : {
       "localizations" : {
         "es" : {
@@ -116,6 +139,9 @@
           }
         }
       }
+    },
+    "No sessions yet" : {
+
     },
     "Notifications" : {
       "localizations" : {

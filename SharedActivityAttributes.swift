@@ -1,16 +1,11 @@
 //  SharedActivityAttributes.swift
-//  LockAndWork
-//
-//  Created by Christian Arzaluz on 07/05/25.
-//
-
 import ActivityKit
 import SwiftUI
 
-// Making these public so they can be accessed from the widget extension
+// Public attributes for the Live Activity
 public struct LockAndWorkWidgetAttributes: ActivityAttributes, Codable {
     public struct ContentState: Codable, Hashable {
-        // La endDate representa cuándo termina el temporizador
+        // End date represents when the timer will finish
         public var endDate: Date
         public var blockType: BlockType
         
@@ -19,7 +14,7 @@ public struct LockAndWorkWidgetAttributes: ActivityAttributes, Codable {
             self.blockType = blockType
         }
         
-        // Función auxiliar para obtener el intervalo de tiempo para mostrar
+        // Helper function to get the timer interval for display
         public func getTimerInterval() -> ClosedRange<Date> {
             return endDate...endDate
         }

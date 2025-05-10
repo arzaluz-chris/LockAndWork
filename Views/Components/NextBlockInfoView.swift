@@ -17,6 +17,7 @@ struct NextBlockInfoView: View {
             RoundedRectangle(cornerRadius: 10)
                 .fill(Color(.systemGray6))
         )
+        .accessibilityLabel("Next up is \(blockType.displayName) for \(duration) minutes")
     }
 }
 

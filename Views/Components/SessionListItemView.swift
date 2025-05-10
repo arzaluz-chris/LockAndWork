@@ -13,6 +13,11 @@ struct SessionListItemView: View {
     
     var body: some View {
         HStack {
+            // Type indicator
+            Circle()
+                .fill(session.type == .focus ? Color.blue : Color.green)
+                .frame(width: 12, height: 12)
+            
             VStack(alignment: .leading, spacing: 5) {
                 Text(timeRange)
                     .font(.callout)
@@ -26,8 +31,11 @@ struct SessionListItemView: View {
             
             Text("\(session.durationInMinutes) min")
                 .font(.callout)
+                .foregroundColor(session.type == .focus ? .blue : .green)
         }
         .padding(.vertical, 5)
+        .contentShape(Rectangle())
+        .accessibilityLabel("\(session.type.displayName) session, \(session.durationInMinutes) minutes, at \(timeFormatter.string(from: session.startDate))")
     }
     
     private var timeRange: String {
@@ -37,15 +45,4 @@ struct SessionListItemView: View {
         
         return "\(timeFormatter.string(from: session.startDate)) - \(timeFormatter.string(from: endDate))"
     }
-}
-
-#Preview {
-    SessionListItemView(
-        session: Session(
-            startDate: Date().addingTimeInterval(-1800),
-            endDate: Date(),
-            type: .focus
-        )
-    )
-    .padding()
 }

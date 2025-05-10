@@ -5,31 +5,33 @@ import ActivityKit
 class ActivityManager {
     static let shared = ActivityManager()
     
-    // Referencia a la Live Activity actual
+    // Reference to current Live Activity
     private var activity: Activity<LockAndWorkWidgetAttributes>?
     
     private init() {}
     
+    /// Start a Live Activity
+    /// - Parameters:
+    ///   - endDate: When the current timer will end
+    ///   - blockType: The current block type (focus or break)
     func startActivity(endDate: Date, blockType: BlockType) {
-        // Terminar cualquier actividad existente primero
+        // End any existing activity first
         endActivity()
         
-        // Verificar si están habilitadas las Live Activities
+        // Check if Live Activities are enabled
         guard ActivityAuthorizationInfo().areActivitiesEnabled else {
             print("Live Activities not available")
             return
         }
         
-        // Crear atributos y estado inicial
+        // Create attributes and initial state
         let attributes = LockAndWorkWidgetAttributes(blockType: blockType)
         let initialState = LockAndWorkWidgetAttributes.ContentState(
             endDate: endDate,
             blockType: blockType
         )
         
-        // No establecer staleDate - terminará manualmente cuando sea necesario
-        
-        // Intentar crear la Live Activity
+        // Try to create the Live Activity
         do {
             activity = try Activity.request(
                 attributes: attributes,
@@ -43,20 +45,24 @@ class ActivityManager {
         }
     }
     
+    /// Update an existing Live Activity
+    /// - Parameters:
+    ///   - endDate: When the current timer will end
+    ///   - blockType: The current block type (focus or break)
     func updateActivity(endDate: Date, blockType: BlockType) {
         guard let activity = self.activity else {
-            // Si no hay actividad, iniciar una nueva
+            // If no activity exists, start a new one
             startActivity(endDate: endDate, blockType: blockType)
             return
         }
         
-        // Crear nuevo estado
+        // Create new state
         let updatedState = LockAndWorkWidgetAttributes.ContentState(
             endDate: endDate,
             blockType: blockType
         )
         
-        // Actualizar la Live Activity
+        // Update the Live Activity
         Task {
             await activity.update(
                 ActivityContent(state: updatedState, staleDate: nil)
@@ -65,8 +71,9 @@ class ActivityManager {
         }
     }
     
+    /// End the current Live Activity
     func endActivity() {
-        // Terminar la actividad en vivo si existe
+        // End the Live Activity if it exists
         guard let activity = activity else { return }
         
         Task {

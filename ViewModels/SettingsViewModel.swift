@@ -47,6 +47,7 @@ class SettingsViewModel: ObservableObject {
         self.liveActivityEnabled = settings.liveActivityEnabled
     }
     
+    /// Save the current settings to the database
     func saveSettings() {
         settings.focusMinutes = focusMinutes
         settings.breakMinutes = breakMinutes
@@ -56,6 +57,8 @@ class SettingsViewModel: ObservableObject {
         
         do {
             try modelContext.save()
+            // Notify that settings have changed
+            NotificationCenter.default.post(name: NSNotification.Name("SettingsChanged"), object: settings)
         } catch {
             print("Failed to save settings: \(error)")
         }
